@@ -23,11 +23,16 @@ namespace Spia
         public override void Enable()
         {
             Singleton = this;
+            NetRoleManager.NetRoleManager.Instance.RegisterRole(Singleton.Config.CS);
+            NetRoleManager.NetRoleManager.Instance.RegisterRole(Singleton.Config.NtfSpy);
+            CustomHandlersManager.RegisterEventsHandler(new RoleEvents());
+
         }
 
         public override void Disable()
         {
             Singleton = null;
+            CustomHandlersManager.UnregisterEventsHandler(new RoleEvents());
         }
 
         public override string Name { get; } = "The Spy";
