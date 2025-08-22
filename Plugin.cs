@@ -59,7 +59,7 @@ namespace Spia
 
     public class RoleEvents : CustomEventsHandler
     {
-        private static Dictionary<Player, bool> spieSparato = new Dictionary<Player, bool>();
+        public static Dictionary<Player, bool> spieSparato = new Dictionary<Player, bool>();
         public override void OnServerWaveRespawned(WaveRespawnedEventArgs ev)
         {
             int SpieSpawnate = 0;
@@ -74,7 +74,6 @@ namespace Spia
                     {
                         NetRoleManager.NetRoleManager.Instance.AssignRole(z,Plugin.Singleton.Config.NtfSpy);
                         SpieSpawnate++;
-                        spieSparato.Add(z,false);
                     }
                 }
             }
@@ -87,10 +86,14 @@ namespace Spia
                     {
                         NetRoleManager.NetRoleManager.Instance.AssignRole(z,Plugin.Singleton.Config.NtfSpy);
                         SpieSpawnate++;
-                        spieSparato.Add(z,false);
                     }
                 }  
             }
+        }
+
+        public override void OnPlayerChangedRole(PlayerChangedRoleEventArgs ev)
+        {
+
         }
 
         public override void OnPlayerHurting(PlayerHurtingEventArgs ev)
@@ -103,6 +106,7 @@ namespace Spia
                 { 
                     AccessTools.Field(typeof(AttackerDamageHandler),"ForceFullFriendlyFire").SetValue(hd,true);
                     spieSparato[ev.Attacker] = true;
+                    ev.IsAllowed = true;
                 }
                 else if (spieSparato.ContainsKey(ev.Player))
                 {
@@ -111,9 +115,9 @@ namespace Spia
                         AccessTools.Field(typeof(AttackerDamageHandler),"ForceFullFriendlyFire").SetValue(zd,true);
                     }
                 }
-            } else if ((ev.Attacker.Faction == Faction.FoundationEnemy && ev.Player.Faction == Faction.FoundationStaff)
+            } else if (( (ev.Attacker.Faction == Faction.FoundationEnemy && ev.Player.Faction == Faction.FoundationStaff)
                        || ( ev.Attacker.Faction == Faction.FoundationStaff &&
-                       ev.Player.Faction == Faction.FoundationEnemy ) && ( spieSparato.ContainsKey(ev.Attacker) || spieSparato.ContainsKey(ev.Player) ))
+                       ev.Player.Faction == Faction.FoundationEnemy ) ) && ( spieSparato.ContainsKey(ev.Attacker) || spieSparato.ContainsKey(ev.Player) ))
             {
                 ev.IsAllowed = false;
             }

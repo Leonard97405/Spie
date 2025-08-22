@@ -26,6 +26,7 @@ namespace Spia
             {
                 player.AddAmmo(ItemType.Ammo12gauge,24);
                 player.AddAmmo(ItemType.Ammo44cal,24);
+                RoleEvents.spieSparato.TryAdd(player,false);
             }
         }
     }
