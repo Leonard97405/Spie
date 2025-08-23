@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Security.Cryptography;
+using CustomPlayerEffects;
 using HarmonyLib;
 using LabApi.Events.Arguments.PlayerEvents;
 using LabApi.Events.Arguments.ServerEvents;
@@ -62,6 +63,7 @@ namespace Spia
         public static Dictionary<Player, bool> spieSparato = new Dictionary<Player, bool>();
         public override void OnServerWaveRespawned(WaveRespawnedEventArgs ev)
         {
+            if (ev.Players.Count < Plugin.Singleton.Config.minPlayer) return;
             int SpieSpawnate = 0;
             int maxSpie = ev.Players.Count / 100 * Plugin.Singleton.Config.rappS;
             if (maxSpie == 0) maxSpie = 1;
@@ -90,29 +92,24 @@ namespace Spia
                 }  
             }
         }
-
-        public override void OnPlayerChangedRole(PlayerChangedRoleEventArgs ev)
-        {
-
-        }
+        
 
         public override void OnPlayerHurting(PlayerHurtingEventArgs ev)
         {
             if (ev.Attacker == null) return;
-            if (ev.Attacker.Faction == ev.Player.Faction)
+            if (ev.Attacker.Faction == ev.Player.Faction && !spieSparato.IsEmpty())
             {
-                
+
                 if (spieSparato.ContainsKey(ev.Attacker) && ev.DamageHandler is AttackerDamageHandler hd)
-                { 
-                    AccessTools.Field(typeof(AttackerDamageHandler),"ForceFullFriendlyFire").SetValue(hd,true);
-                    spieSparato[ev.Attacker] = true;
-                    ev.IsAllowed = true;
-                }
-                else if (spieSparato.ContainsKey(ev.Player))
                 {
-                    if (spieSparato[ev.Player] && ev.DamageHandler is AttackerDamageHandler zd )
+                    spieSparato[ev.Attacker] = true;
+                    hd.ForceFullFriendlyFire = true;
+                }
+                else if (spieSparato.TryGetValue(ev.Player, out var value))
+                {
+                    if (value && ev.DamageHandler is AttackerDamageHandler zd )
                     {
-                        AccessTools.Field(typeof(AttackerDamageHandler),"ForceFullFriendlyFire").SetValue(zd,true);
+                        zd.ForceFullFriendlyFire = true;
                     }
                 }
             } else if (( (ev.Attacker.Faction == Faction.FoundationEnemy && ev.Player.Faction == Faction.FoundationStaff)

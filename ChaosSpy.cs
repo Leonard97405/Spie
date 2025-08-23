@@ -1,3 +1,4 @@
+using CustomPlayerEffects;
 using LabApi.Features.Wrappers;
 using NetRoleManager;
 using PlayerRoles;
