@@ -99,29 +99,31 @@ namespace Spia
             if (ev.Attacker == null) return;
             if (ev.Attacker.Faction == ev.Player.Faction && !spieSparato.IsEmpty())
             {
-
+                if (spieSparato.ContainsKey(ev.Attacker) && spieSparato.ContainsKey(ev.Player)) ; else
                 if (spieSparato.ContainsKey(ev.Attacker) && ev.DamageHandler is AttackerDamageHandler hd)
                 {
-                    spieSparato[ev.Attacker] = true;
                     hd.ForceFullFriendlyFire = true;
+                    spieSparato[ev.Attacker] = true;
                 }
                 else if (spieSparato.TryGetValue(ev.Player, out var value))
                 {
                     if (value && ev.DamageHandler is AttackerDamageHandler zd )
-                    {
+                    {                    
                         zd.ForceFullFriendlyFire = true;
                     }
                 }
-            } else if (( (ev.Attacker.Faction == Faction.FoundationEnemy && ev.Player.Faction == Faction.FoundationStaff)
+            } else if (spieSparato.ContainsKey(ev.Attacker) && spieSparato.ContainsKey(ev.Player)) ev.IsAllowed = true; else
+            if (( (ev.Attacker.Faction == Faction.FoundationEnemy && ev.Player.Faction == Faction.FoundationStaff)
                        || ( ev.Attacker.Faction == Faction.FoundationStaff &&
                        ev.Player.Faction == Faction.FoundationEnemy ) ) && ( spieSparato.ContainsKey(ev.Attacker) || spieSparato.ContainsKey(ev.Player) ))
             {
                 ev.IsAllowed = false;
             }
         }
-        
-        
-        
-       
+
+        public override void OnPlayerDying(PlayerDyingEventArgs ev)
+        {
+            spieSparato.Remove(ev.Player);
+        }
     }
 }
